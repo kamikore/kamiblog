@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    title 404 - Not Found
+  body
+    //- 注意是绝对路径
+    img(src = '/images/404 2.png')
+  style(lang='less').
+    @keyframes float {
+      0% {
+        transform: translateY(0rem)
+      }
+      50% {
+        transform: translateY(3rem)
+      }
+      100% {
+        transform: translateY(0rem)
+      }
+    }
+
+    body {
+        background: 	#2F4F4F;
+    }
+
+    img {
+      display: block;
+      margin : auto;
+      animation: float 2s linear infinite;
+    }

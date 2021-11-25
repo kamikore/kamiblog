@@ -1,0 +1,10 @@
+{
+    "title":"kamiblog  ---- 开发环境",
+    "db":{
+        "username":"kamikore",
+        "host":"localhost",
+        "port":"27017",
+        "name":"myblog"
+    }
+}
+
