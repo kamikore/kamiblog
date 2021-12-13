@@ -36,9 +36,11 @@
     </el-row>
     <el-row>
       <el-col :span="12">
-        <el-input type="textarea" v-model="text" @input="convertText"
-          >sdsd</el-input
-        >
+        <el-input
+          type="textarea"
+          v-model="text"
+          @input="convertText"
+        ></el-input>
       </el-col>
       <el-col :span="12">
         <div class="markdown-body" id="html"></div>
@@ -60,6 +62,7 @@
           v-for="item in tagList"
           :key="item.id"
           :label="item"
+          style="height: 40px"
         ></el-checkbox>
       </el-checkbox-group>
       <template #footer>
@@ -159,15 +162,21 @@ export default {
 
         case 3:
           if (!this.title) {
-            this.$message.warning("title 为必填项 ！！！");
+            this.$message.warning(" 文章的标题不能为空 ！！！");
+            break;
+          } else if (this.title.length < 5) {
+            this.$message.warning(" 文章的标题不能少于5个字符 ！！！");
             break;
           } else if (!markdownHtml.trim()) {
             this.$message.warning("文章内容不能为空 ！！！");
             break;
+          } else if (!this.checkList.length > 0) {
+            this.$message.warning("文章的标签不能为空 ！！！");
+            break;
           }
           this.$loading({ fullscreen: true });
           updateArticle(this.id, {
-            content: markdownHtml,
+            content: this.text,
             title: this.title,
             tags: this.checkList,
           })
@@ -221,10 +230,16 @@ export default {
 </script>
 
 <style lang='scss'>
+.placeholder {
+  height: 75px;
+  line-height: 75px;
+}
+
 body {
-  .el-drawer__body {
-    height: 100%;
-  }
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
 
   // textarea 文本域高度具体由js 计算
   .editor-container {
@@ -238,7 +253,6 @@ body {
     // }
 
     .el-row:nth-child(2) {
-      height: 100%;
       .el-col {
         height: 100%;
       }

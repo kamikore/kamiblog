@@ -8,7 +8,7 @@
           >总共有: <span>{{ this.total }}</span> 篇文章</span
         >
         <div
-          class="home-artcles"
+          class="home-artcle"
           v-for="item in articleList"
           :key="item._id"
           @click="goDetail(item._id)"
@@ -100,7 +100,7 @@ export default {
         document.documentElement.scrollTop = 0;
         /*导航传入ID，article.vue 需要拿id 发起请求*/
         this.$router.push({
-          path: `/home/article/details/${id}`,
+          path: `/home/article/details/${id}`,    
         });
       }
     },
@@ -168,7 +168,7 @@ export default {
 }
 
 .home-container-wrap {
-  min-height: 500px;
+  min-height: 800px;
 }
 .home-container {
   position: relative;
@@ -200,15 +200,21 @@ export default {
     }
   }
 
-  .home-artcles {
+  .home-artcle {
     height: 220px;
     width: 100%;
     min-width: 400px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     overflow: hidden;
     padding: 5px;
     cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 20px rgba(0, 0, 0, 0.4);
+    }
 
     .artcles-container {
       height: 100%;

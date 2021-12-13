@@ -6,11 +6,13 @@ import axios from 'axios'
 // const hljs = require("highlight.js");
 
 
-// import "./mock"
+require('dotenv').config()
 import '../public/css/iconfont.css'
 // 引入 nProgress CSS, nProgress 在路由 index.js引入并设置
 import 'nprogress/nprogress.css'
 import '../public/css/github-markdown.css'
+// 在html link引入会有样式加载不全的问题
+import 'element-plus/dist/index.css'
 // 完整引入组件
 // import ElementPlus from 'element-plus'
 import  api from '@/api'

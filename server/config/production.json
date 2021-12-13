@@ -1,0 +1,8 @@
+{
+    "title":"kamiblog  ---- 生产环境",
+    "db":{
+        "username":"kamikore",
+        "port":"27017",
+        "name":"myblog"
+    }
+}

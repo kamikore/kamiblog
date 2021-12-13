@@ -7,6 +7,7 @@ const path = require('path')
 const fs = require('fs');
 const {dataTime} = require('../../utils/date')
 const rimraf = require("rimraf");
+const { query } = require('express');
 
 
 module.exports = app => {
@@ -22,10 +23,10 @@ module.exports = app => {
       switch(req.params.action) {
         case 'upload':
           // 忽略文件夹存在报错   
-          fs.mkdir(path.join(__dirname,'../../',`/uploads/user/${uid}`),()=>{})   
+          fs.mkdir(path.join(__dirname,'../../',`/public/uploads/user/${uid}`),()=>{})   
           // 清空文件夹
-          rimraf(path.join(__dirname,'../../',`/uploads/user/${uid}/*`),() => {
-            fs.writeFileSync(path.join(__dirname,'../../',`/uploads/user/${uid}/${uid+ dataTime(new Date())}.${req.body.type}`),dataBuffer,
+          rimraf(path.join(__dirname,'../../',`/public/uploads/user/${uid}/*`),() => {
+            fs.writeFileSync(path.join(__dirname,'../../',`/public/uploads/user/${uid}/${uid+ dataTime(new Date())}.${req.body.type}`),dataBuffer,
             err =>{
               if( err != null) {
                 console.log(err);
@@ -34,7 +35,7 @@ module.exports = app => {
             })
           })
          
-          let url = `http://localhost:3000/user/${uid}/${uid + dataTime(new Date())}.${req.body.type}`;
+          let url = `http://localhost:3000/uploads/user/${uid}/${uid + dataTime(new Date())}.${req.body.type}`;
           await req.Model.model.updateOne({_id: uid}, {avatar: url});
           res.send({url,code:20000})
           break;
@@ -43,12 +44,13 @@ module.exports = app => {
   
   
     router.get('/:action', async(req,res) => {
-      console.log(req.body)
+
       // 需要赋值为 对象，否则后面会找不到属性
       let data,queryOptions = {};
       switch(req.params.action) {
         case 'personalArticle' :
-          data = await req.Model.model.find({author: req.userInfo._id}).populate('author',{username:1,_id: 0});
+          console.log(req.query)
+          data = await req.Model.model.find({author: req.userInfo._id,status: req.query.status}).populate('author',{username:1,_id: 0});
           res.send({data,code:20000})
           break;
         case 'manage':
@@ -58,10 +60,11 @@ module.exports = app => {
               queryOptions = {};
               break;
             case 'Article':
+              
               queryOptions.populate = { path: 'author', select: {username: 1,_id: 0}}
               break;
           }
-          data = await req.Model.model.find().setOptions(queryOptions);
+          data = await req.Model.model.find({status: 'published'}).setOptions(queryOptions);
           res.send({data,code: 20000})
           break;
         case 'detail':
@@ -102,17 +105,20 @@ module.exports = app => {
   
   
     router.delete('/', async(req,res) => {
+      //需要限制删除的范围，是否为他人的文章
+      let data = await req.Model.model.findById(req.query['0'])
+      assert(data.author.toString()===req.query['0'] || req.userInfo.role==='admin',401,'当前用户权限不允许操作')
       await req.Model.model.findByIdAndDelete(req.query['0'])
       res.send({ code: 20000,data: 'success'})
     });
     
 
 
-
     // 拦截去admin 的请求, 验证token获取用户信息，并通过next（） 传递这些信息方便后期加以判断
     app.use('/admin',async(req,res,next) => {
       const _id = verifyToken(req.headers['x-token']);
-      assert(_id|| req.path.includes('login') || req.path.includes('logout'), 401,'请先登录')
+      console.log(req.path)
+      assert(_id|| req.path.includes('login') || req.path.includes('logout'), 401,'！！！ 请先登录 ！！！')
       if(_id) {
         const data = await User.findById(_id)
         req.userInfo = data;

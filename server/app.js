@@ -4,6 +4,7 @@ const path = require('path');
 const cors = require('cors')
 require('express-async-errors');
 
+
 // const sqlconnnect = require('./util/dbconfig')
 
 // express 处理cookie API
@@ -17,6 +18,7 @@ require ('./utils/db');
 
 
 const app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,16 +35,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
-// 静态资源处理
-app.use(express.static(path.join(__dirname, 'uploads')));
+// 静态资源处理，也会使得访问 url 直接访问文件目录能够获取到 index.html
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 
  app.use(cors())
 // 或是下载cors 模块， app.use(require('cors')())
-require('./routes/blog')(app)
-require('./routes/admin')(app)
-
 
 
 if(process.env.NODE_ENV == 'development') {
@@ -50,6 +49,27 @@ if(process.env.NODE_ENV == 'development') {
 } else {
   console.log('当前是生产环境！');
 }
+
+app.use('/home',(req,res,next)=>{
+
+  if(req.url !='/') {
+    next()
+  }
+  res.sendFile(path.join(__dirname, "public/blog/index.html"))
+})
+
+
+// app.use('/blog-admin',(req,res,next)=>{
+
+//   if(req.url !='/') {
+//     next()
+//   }
+//   res.sendFile(path.join(__dirname, "public/admin/index.html"))
+// })
+
+// 放到后面了为了显示出页面
+require('./routes/blog')(app)
+require('./routes/admin')(app)
 
 
 // catch 404 and forward to error handler

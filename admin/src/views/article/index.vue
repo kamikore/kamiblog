@@ -1,5 +1,8 @@
 <template>
   <div class="app-container">
+    <el-button @click="fetchData('published')">已发布文章</el-button>
+    <i class="iconfont icon-qiehuan7" style="padding: 0 20px"></i>
+    <el-button @click="fetchData('draft')">草稿箱</el-button>
     <!-- 当el-table元素中注入data对象数组后，在el-table-column中用prop属性来对应对象中的键名即可填入数据 -->
     <el-table
       v-loading="listLoading"
@@ -8,6 +11,7 @@
       border
       fit
       highlight-current-row
+      style="margin-top: 20px"
     >
       <!-- label 是表头标题 -->
       <el-table-column align="center" label="ID" width="95">
@@ -90,7 +94,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 文本编辑 抽屉 -->
+    <!-- 文本编辑 抽屉 ,handleClose 在关闭时即操作完成再抓取一次数据-->
     <el-drawer
       title="文章编辑"
       :visible.sync="drawer"
@@ -122,12 +126,12 @@ export default {
     };
   },
   created() {
-    this.fetchData();
+    this.fetchData("published");
   },
   methods: {
-    fetchData() {
+    fetchData(status) {
       this.listLoading = true;
-      personalArticle().then((response) => {
+      personalArticle({ status }).then((response) => {
         this.list = response.data;
         this.listLoading = false;
       });
@@ -175,7 +179,7 @@ export default {
     },
     getNewList() {
       this.drawer = false;
-      this.fetchData();
+      this.fetchData("published");
     },
   },
 };

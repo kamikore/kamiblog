@@ -187,10 +187,11 @@ export default {
     changeType() {
       this.isLogin = !this.isLogin;
       // 每次切换把表单清空
-      this.form.username = "";
-      this.form.email = "";
-      this.form.pass = "";
-      this.form.checkPass = "";
+      // this.form.username = "";
+      // this.form.email = "";
+      // this.form.pass = "";
+      // this.form.checkPass = "";
+      this.form = {};
     },
     login(formName) {
       this.loading = true;
@@ -207,7 +208,8 @@ export default {
             })
             .then((res) => {
               this.$message.success("登录成功！！！");
-              this.form = "";
+              //如果置为空字符串，会导致登录后，无法重新使用表单数据
+              this.form = {};
               localStorage.setItem("token", res.data.token);
               this.$loading().close();
               this.$api.user.getUser(res.data._id).then((res) => {
@@ -240,15 +242,16 @@ export default {
         if (valid) {
           this.$loading({ fullscreen: true });
           this.loading = false;
-
+          console.log(this.form.username.length);
           // 发起请求
-          this.$api.user.registerRequest({
-            username: this.form.username,
-            email: this.form.email,
-            password: this.form.pass,
-          })
+          this.$api.user
+            .registerRequest({
+              username: this.form.username,
+              email: this.form.email,
+              password: this.form.pass,
+            })
             .then((res) => {
-              this.form = "";
+              this.form = {};
               this.$message.success("注册成功 ！！！");
               this.changeType();
               this.loading = false;
@@ -308,7 +311,18 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    // background-color: black;
+    background-color: #cddcdc;
+    background-image: radial-gradient(
+        at 50% 100%,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(0, 0, 0, 0.5) 100%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(0, 0, 0, 0.25) 100%
+      );
+    background-blend-mode: screen, overlay;
     border-radius: 20px;
     box-shadow: 0 0 10px rgb(70, 67, 67);
 
@@ -345,7 +359,7 @@ export default {
         left: 45%;
         top: 4%;
         font-size: 150%;
-        color: #98c5fc;
+        color: #7eb1f0;
         cursor: pointer;
       }
 
@@ -364,7 +378,7 @@ export default {
     .btitle {
       font-size: 1.5em;
       font-weight: bold;
-      color: rgb(152, 197, 252);
+      color: #7eb1f0;
     }
     .form {
       width: 100%;
@@ -384,7 +398,7 @@ export default {
           border-radius: 24px;
           border: none;
           outline: none;
-          background-color: #98c5fc;
+          background-color: #7eb1f0;
           color: #fff;
           font-size: 0.9em;
           cursor: pointer;
@@ -397,17 +411,7 @@ export default {
   .small-box {
     width: 30%;
     height: 100%;
-    background: linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(0, 0, 0, 0.15) 100%
-      ),
-      radial-gradient(
-          at top center,
-          rgba(255, 255, 255, 0.4) 0%,
-          rgba(0, 0, 0, 0.4) 120%
-        )
-        #989898;
+    background-image: linear-gradient(to right, #a8caba 0%, #5d4157 100%);
     background-blend-mode: multiply, multiply;
     position: absolute;
     top: 0;

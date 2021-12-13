@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: 'http://localhost:3000/user/avatar.png'
+        default: 'http://localhost:3000/uploads/user/avatar.png'
     },
     gender: {
         type: String,
@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
     },
     intro: {
         type: String
+    },
+    editTemp:{
+        type: String,
+        default: null
     }
 
 });
@@ -53,7 +57,8 @@ const User = mongoose.model('User',userSchema);
 //Joi 信息验证规则
 const validateUser = req => {
     const schema = Joi.object({
-        username: Joi.string().alphanum().min(2).max(12).required().error(new Error('用户名长度必须是2到16个字符 ！！！')),
+        //alphanum() 仅限字母和数字
+        username: Joi.string().min(2).max(12).required().error(new Error('用户名长度必须是2到16个字符 ！！！')),
         email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required().error(new Error('邮箱格式不符合要求 ！！！')),
         password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{6,20}$')).required().error(new Error('密码长度必须在6到20个字符  ！！！')),
         role: Joi.string().valid('normal').error(new Error('非法的角色值 !!!')),

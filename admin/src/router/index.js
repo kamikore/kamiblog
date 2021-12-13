@@ -128,7 +128,7 @@ export const constantRoutes = [
     component: Layout,
     children: [
       {
-        path: 'http://localhost:8888',
+        path: 'http://120.79.218.59:3000/home',
         meta: { title: '博客页', icon: 'link' }
       }
     ]

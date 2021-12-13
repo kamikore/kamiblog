@@ -1,8 +1,12 @@
 const path = require('path');
-const resolve = (dir) => path.join(__dirname,dir);
+const resolve = (dir) => path.join(__dirname, dir);
 
+
+// vue 3.0 的配置
 module.exports = {
+    publicPath: process.env.NODE_ENV === 'production' ? "/blog/" : "/",
     lintOnSave: true,
+    outputDir: 'blog',
     devServer: {
         port: 8888,
         // proxy: {
@@ -26,7 +30,7 @@ module.exports = {
             .set('@views', resolve('src/views'))
             .set('@store', resolve('src/store'));
     }
-    
+
     // configureWebpack: {
     //     resolve: {
     //         alias: {

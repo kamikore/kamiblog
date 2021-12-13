@@ -56,7 +56,9 @@
                   <el-dropdown-item command="0">修改个人信息</el-dropdown-item>
                   <el-dropdown-item command="1">个人设置</el-dropdown-item>
                   <el-dropdown-item command="2">
-                    <a target="_blank" href="http://localhost:8000">后台管理</a>
+                    <a target="_blank" href="http://120.79.218.59:3000/admin"
+                      >后台管理</a
+                    >
                   </el-dropdown-item>
                   <el-dropdown-item command="3">退出登录</el-dropdown-item>
                 </el-dropdown-menu>

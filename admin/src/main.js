@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
-import 'github-markdown-css'
+import '../public/css/github-markdown.css'
 import '../public/css/iconfont.css'
 
 import ElementUI from 'element-ui'

@@ -21,7 +21,6 @@ export function getUser(data) {
 
 
 export function loginRequest(data) {
-    console.log('执行了')
     return request({
       url: '/login',
       method: 'post',
@@ -42,6 +41,15 @@ export function logout() {
   return request({
     url: '/logout',
     method: 'post'
+  })
+}
+
+
+export function updateEditTemp(data,id) {
+  return request({
+      url: `/rest/user/updateTemp/${id}`,
+      method: 'put',
+      data
   })
 }
 

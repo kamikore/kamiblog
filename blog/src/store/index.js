@@ -43,6 +43,13 @@ export default createStore({
         // 返回的是commit 完成后的 login， 与 async / await 效果相同
         resolve()
       })
+    },
+    // 修改用户的编辑器暂存
+    change_userInfoTemp (context, payload) {
+      return new Promise((resolve,reject) => {
+        context.commit('change_userInfoTemp', payload)
+        resolve()
+      })
     }
   },
   modules: {

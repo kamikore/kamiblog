@@ -24,8 +24,10 @@ module.exports = {
    * In most cases please use '/' !!!
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
-  publicPath: '/',
-  outputDir: 'dist',
+
+  // 根路径指向了 myblog 并不是 admin
+  publicPath: process.env.NODE_ENV === 'production'?'/admin/':'/',
+  outputDir: 'admin',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,

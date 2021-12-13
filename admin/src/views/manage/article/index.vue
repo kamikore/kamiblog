@@ -171,11 +171,9 @@ export default {
         type: "warning",
       })
         .then(async () => {
-          this.list.splice(index, 1);
-          await deleteArticle(id);
-          this.$message({
-            type: "success",
-            message: "删除成功!",
+          await deleteArticle(id).then(() => {
+            this.list.splice(index, 1);
+            this.$message({ type: "success", message: "删除成功!" });
           });
         })
         .catch((err) => {

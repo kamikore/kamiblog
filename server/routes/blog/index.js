@@ -15,35 +15,42 @@ module.exports = app => {
   
 // 添加资源
   router.post('/:action', async(req,res) => {
-    assert(verifyToken(req.body.uid), 401, '登录过期 ！！！');
+    // assert(verifyToken(req.body.uid), 401, '登录过期 ！！！');
   
-    let uid = verifyToken(req.body.uid);
+    // let uid = verifyToken(req.body.uid);
     
     switch(req.params.action) {
       case 'publish': 
         await req.Model.create({
           content: req.body.content,
-          author: uid,
+          author: req.body.uid,
           title: req.body.title,
-          tags: req.body.tags
-        }).catch( err => {
-          assert(false, 406, err.message)
+          tags: req.body.tags,
+          status: req.body.status,
+        }).then((data)=>{
+          //返回文档创建对应的ID值
+          res.send(data)
         })
-        res.send()
+        .catch( err => {
+          assert(false, 406, err.message)
+          res.send()
+        })
+
     
         break;
 
       case 'upload':
+        //node.js Buffer.from()方法用于创建包含指定字符串，数组或缓冲区的新缓冲区
         let dataBuffer = Buffer.from(req.body.imgFile.split(',')[1],'base64');
-        fs.mkdir(path.join(__dirname,'../../',`/uploads/article/${uid}`),()=>{});   
-        fs.writeFileSync(path.join(__dirname,'../../',`/uploads/article/${uid}/${req.body.fileName}.${req.body.type}`),dataBuffer,
+        fs.mkdir(path.join(__dirname,'../../',`/uploads/article/${req.body.uid}`),()=>{});   
+        fs.writeFileSync(path.join(__dirname,'../../',`/uploads/article/${req.body.uid}/${req.body.fileName}.${req.body.type}`),dataBuffer,
         err =>{
           if( err != null) {
             console.log(err);
             return;
           }
         })
-        let url = `http://localhost:3000/article/${uid}/${req.body.fileName}.${req.body.type}`;
+        let url = `http://localhost:3000/article/${req.body.uid}/${req.body.fileName}.${req.body.type}`;
         res.send({url,code:20000})
         break;
     }
@@ -60,8 +67,8 @@ module.exports = app => {
     let items = {};
     switch(req.params.action) {
       case 'page':
-        items.total = await req.Model.find().count();
-        items.data = await req.Model.find().populate('author',{username:1,avatar:1,_id: 0}).skip((req.params.data-1)*8).sort({'publishTime': -1}).limit(8);
+        items.total = await req.Model.find({status: 'published'}).count();
+        items.data = await req.Model.find({status: 'published'}).populate('author',{username:1,avatar:1,_id: 0}).skip((req.params.data-1)*8).sort({'publishTime': -1}).limit(8);
         break;
       case 'details':
         items.data = await req.Model.findById(req.params.data).populate('author',{username:1,avatar:1,_id: 0});
@@ -94,7 +101,6 @@ module.exports = app => {
 
       case 'reply':
         var {comment} = await req.Model.findOne({_id: req.params.id});  
-        console.log(comment)
         comment[req.body.index].replyList.push(req.body.reply)
         await req.Model.updateOne({_id: req.params.id},{
               comment
@@ -104,6 +110,32 @@ module.exports = app => {
             console.log(err)
           })
         break;
+
+      case 'updateTemp':
+        await req.Model.updateOne({_id: req.params.id},{
+            editTemp: req.body.content
+          }).then(() => {
+            res.send('success')
+          }).catch((err)=>{
+            console.log(err)
+            res.send()
+          })
+ 
+        break;
+
+        case 'updateDraft':
+          console.log('req.body',req.body)
+          await req.Model.updateOne({_id: req.params.id},{
+              content: req.body.content,
+              tags: req.body.tags,
+              title: req.body.title,
+            }).then(() => {
+              res.send('success')
+            }).catch((err)=>{
+              console.log(err)
+            })
+  
+          break;
 
     }
       

@@ -55,3 +55,11 @@ export function subReply(data,id) {
 }
 
 
+export function updateDraft(data,id){
+    return request({
+        url: `/rest/article/updateDraft/${id}`,
+        method: 'put',
+        data
+    })
+}
+

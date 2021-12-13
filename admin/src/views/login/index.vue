@@ -60,10 +60,7 @@
         >Login</el-button
       >
 
-      <div class="tips">
-        <span style="margin-right: 20px">username: admin</span>
-        <span> password: any</span>
-      </div>
+      <div class="tips"></div>
     </el-form>
   </div>
 </template>
@@ -93,8 +90,8 @@ export default {
     return {
       // 通过该表单提交数据
       loginForm: {
-        email: "2044516642@qq.com",
-        password: "blog123456",
+        email: "",
+        password: "",
       },
       // 自定义校验规则,自定义校验 callback 必须被调用
       loginRules: {
@@ -153,7 +150,7 @@ export default {
               this.$router.push({ path: this.redirect || "/" });
               this.loading = false;
             })
-            .catch(() => {                 
+            .catch(() => {
               this.loading = false;
             });
         } else {

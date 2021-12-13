@@ -152,6 +152,7 @@ export default {
     padding: 5px;
     border-radius: 0px 10px 10px 0px;
     box-shadow: 0 0 3px rgb(70, 67, 67);
+    cursor: pointer;
   }
 
   .users-container {

@@ -323,9 +323,8 @@ export default {
           display: flex;
           gap: 20px;
           line-height: 100%;
-          color: #c0c0c0;
+          color: #626262;
           font-size: 12px;
-
           span:last-child {
             cursor: pointer;
           }

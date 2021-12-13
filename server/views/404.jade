@@ -3,7 +3,7 @@ html
   head
     title 404 - Not Found
   body
-    //- 注意是绝对路径
+    //- 注意是绝对路径,不然访问url改变，图片的请求地址也会在相对 url 基础上添加路径， '/' 指向 localhost:3000 还是 req.url为 / ??
     img(src = '/images/404 2.png')
   style(lang='less').
     @keyframes float {

@@ -9,6 +9,9 @@ const mutations = {
     },
     change_Login: (state, payload) =>{
         state.loginStatus = payload
+    },
+    change_userInfoTemp: (state, payload)=>{
+        state.userInfo.editTemp = payload
     }
 }
 

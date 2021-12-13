@@ -8,8 +8,9 @@
             <el-input
               type="text"
               v-model="title"
-              placeholder="title 允许字符"
-              clearable
+              maxlength="100"
+              placeholder=" 请输入文章标题（5~100个字）"
+              show-word-limit
             />
             <el-button @click="dialogVisible = true">
               标签选择
@@ -96,7 +97,8 @@ window.onresize = () => {
   const bodyHeight = document.body.clientHeight;
   const textarea = document.querySelector(".el-row:nth-child(2)");
   const tabBar = document.querySelector(".tab-bar").clientHeight;
-  const navgationBar = document.querySelector(".navgation-bar").clientHeight;
+  const navgationBar =
+    document.querySelector(".navgation-bar").clientHeight || "";
   const statPanel = document.querySelector(".stat-panel").clientHeight;
   textarea.style.height = `${bodyHeight - tabBar - navgationBar - statPanel}px`;
 };
@@ -142,8 +144,10 @@ Ready to start writing?  Either start changing stuff on the left or
 [Marked]: https://github.com/markedjs/marked/
 [Markdown]: http://daringfireball.net/projects/markdown/`,
       title: "",
-      // 文章是否已保存
-      isSave: false,
+      // 文章是否已保存,默认是未编辑所以是true
+      isSave: true,
+      // 当保存至草稿箱，后续的保存都是对该文章的update
+      draftID: null,
       checkList: [],
       tagList: [],
       dialogVisible: false,
@@ -159,15 +163,32 @@ Ready to start writing?  Either start changing stuff on the left or
     };
   },
   computed: {
-    ...mapGetters(["tags"]),
+    ...mapGetters(["tags", "userInfo"]),
+  },
+  watch: {
+    $route: {
+      handler: function () {
+        if (!this.isSave) {
+          this.$api.user.updateEditTemp(
+            { content: this.text },
+            this.userInfo._id
+          );
+        }
+        // 注意凡是修改 vuex 都要调用 mutations
+        this.$store.dispatch("change_userInfoTemp", this.text);
+      },
+    },
+    userInfo() {
+      this.text = this.userInfo.editTemp;
+    },
   },
   methods: {
     convertText() {
       this.wordCount = this.text.length;
       this.html = marked(this.text, { breaks: true }); // 扩展选项
       document.getElementById("html").innerHTML = this.html;
-      if (!this.isSave) {
-        this.isSave = true;
+      if (this.isSave) {
+        this.isSave = false;
       }
       hljs.highlightAll();
     },
@@ -188,12 +209,58 @@ Ready to start writing?  Either start changing stuff on the left or
           break;
 
         case 2:
-          this.isSave = false;
+          this.isSave = true;
+          this.$loading({ fullscreen: true });
+          this.$api.user.updateEditTemp({ content: null }, this.userInfo._id);
+          this.userInfo.editTemp = null;
+          if (!this.draftID) {
+            // 真正的创建草稿箱文章
+            this.$api.article
+              .publishRequest({
+                content: this.text,
+                uid: this.userInfo._id,
+                title: this.title || " ",
+                tags: this.checkList,
+              })
+              .then((res) => {
+                this.$message.success(
+                  "已保存到草稿箱，可转到后台管理页面查看个人文章 !!!"
+                );
+                this.draftID = res.data._id;
+                this.$loading().close();
+              })
+              .catch(() => {
+                this.$loading().close();
+              });
+          } else {
+            // 更新草稿箱文章
+            this.$api.article
+              .updateDraft(
+                {
+                  content: this.text,
+                  title: this.title,
+                  tags: this.checkList,
+                },
+                this.draftID
+              )
+              .then(() => {
+                this.$message.success(
+                  "已保存到草稿箱，可转到后台管理页面查看个人文章 !!!"
+                );
+                this.$loading().close();
+              })
+              .catch(() => {
+                this.$loading().close();
+              });
+          }
           break;
 
         case 3:
           if (!this.title) {
-            this.$message.warning("title 为必填项 ！！！");
+            this.$message.warning(" 文章的标题不能为空 ！！！");
+            break;
+          } else if (this.title.length < 5) {
+            this.$message.warning(" 文章的标题不能少于5个字符 ！！！");
             break;
           } else if (!markdownHtml.trim()) {
             this.$message.warning("文章内容不能为空 ！！！");
@@ -206,9 +273,10 @@ Ready to start writing?  Either start changing stuff on the left or
           this.$api.article
             .publishRequest({
               content: this.text,
-              uid: localStorage.getItem("token"),
+              uid: this.userInfo._id,
               title: this.title,
               tags: this.checkList,
+              status: "published",
             })
             .then(() => {
               this.$message.success("发表成功 !!!");
@@ -228,12 +296,13 @@ Ready to start writing?  Either start changing stuff on the left or
     window.onresize();
     window.addEventListener("beforeunload", (e) => {
       // 未保存至草稿箱或是书写内容更新都会弹窗，每次修改就把保存状态设 false
-      if (this.isSave) {
+      if (!this.isSave) {
         e.returnValue = false;
         if (location.pathname != "/edit") {
           this.$router.push("/edit");
         }
       }
+      this.$api.user.updateEditTemp({ content: this.text }, this.userInfo._id);
     });
 
     // 编辑器的联动滚动，由于双方高度的不同需要有比例的关系，并能够平稳滚动
@@ -263,7 +332,7 @@ Ready to start writing?  Either start changing stuff on the left or
                   reader.onload = () => {
                     this.$api.article
                       .uploadImg({
-                        uid: localStorage.getItem("token"),
+                        uid: this.userInfo._id,
                         fileName,
                         imgFile: reader.result,
                         type: blob.type.split("/")[1],
