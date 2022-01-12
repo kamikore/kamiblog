@@ -9,6 +9,3 @@ mongoose.connect(`mongodb://${config.get('db.username')}:${config.get('db.pwd')}
         .then(() => console.log("数据库连接成功"))
         .catch(() => console.log("数据库连接失败"))
 
-// mongoose.connect(`mongodb://${config.get('db.username')}:${config.get('db.pwd')}@120.79.218.59:${config.get('db.port')}/${config.get('db.name')}`, { useNewUrlParser: true, useUnifiedTopology: true })
-//         .then(() => console.log("数据库连接成功"))
-//         .catch(() => console.log("数据库连接失败"))
